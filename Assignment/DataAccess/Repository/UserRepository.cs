@@ -120,34 +120,5 @@ namespace Assignment.DataAccess.Repository
                 return new InternalServer("An error occurred while searching users");
             }
         }
-
-        private IQueryable<User> ApplySorting(IQueryable<User> query, string sortField, string sortOrder)
-        {
-            // Implement sorting logic based on sortField and sortOrder
-            // For simplicity, let's assume sorting by property name in ascending order
-
-            var orderMethodName = sortOrder == "desc" ? "OrderByDescending" : "OrderBy";
-            var property = typeof(User).GetProperty(sortField);
-
-            if (property != null)
-            {
-                var parameter = Expression.Parameter(typeof(User), "x");
-                var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-                var orderByExpression = Expression.Lambda(propertyAccess, parameter);
-
-                var resultExpression = Expression.Call(
-                    typeof(Queryable),
-                    orderMethodName,
-                    new Type[] { typeof(User), property.PropertyType },
-                    query.Expression,
-                    Expression.Quote(orderByExpression));
-
-                return query.Provider.CreateQuery<User>(resultExpression);
-            }
-
-            // If sorting fails, return the unmodified query
-            return query;
-        }
-
     }
 }
